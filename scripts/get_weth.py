@@ -11,8 +11,9 @@ def get_weth(eth):
     This function mints WETH by depositing ETH.
     """
     # Get an account
+    print(f"converting {eth} to weth....")
     account = get_account()
     weth = interface.IWETH(config["networks"][network.show_active()]["weth_token"])
-    tx = weth.deposit({"from": account, "value": eth * 10**18})
+    tx = weth.deposit({"from": account, "value": eth})
     tx.wait(1)
-    print("Recieved {eth}} WETH")
+    print(f"Recieved {eth} WETH")
