@@ -36,36 +36,38 @@ def main():
 
     amount_dai_to_borrow = (1 / dai_eth_price) * (borrowable_eth * 0.95)
     print(f"We are going to borrow {amount_dai_to_borrow} DAI")
-    borrow_dai(
-        lending_pool, Web3.toWei(amount_dai_to_borrow, "ether"), 1, account.address
-    )
-    get_borrowable_data()
+    borrow_dai(lending_pool, Web3.toWei(amount_dai_to_borrow, "ether"), 1, account)
+
+    get_borrowable_data(lending_pool, account)
+
     print("Repaying all....")
-    repay_all(amount, lending_pool, account, dai_eth_price_address, 1)
+    repay_all(amount, lending_pool, account, 1)
+    get_borrowable_data(lending_pool, account)
 
 
 def borrow_dai(_lending_pool, _amount, _interest_rate, _account):
     dai_address = config["networks"][network.show_active()]["dai_token_address"]
     tx = _lending_pool.borrow(
-        dai_address, _amount, _interest_rate, _account.address, {"from": _account}
+        dai_address, _amount, _interest_rate, 0, _account.address, {"from": _account}
     )
     tx.wait(1)
     print("Operation borrow DAI successful!")
 
 
-def repay_all(_amount, _lending_pool, _account, _dai_token_address, _interest):
+def repay_all(_amount, _lending_pool, _account, _interest):
+    dai_address = config["networks"][network.show_active()]["dai_token_address"]
     erc20_approve(
-        Web3.toWei(_amount, "ether"),
+        _amount,
         _lending_pool,
-        _dai_token_address,
-        {"from": _account},
+        dai_address,
+        _account,
     )
 
     repay_tx = _lending_pool.repay(
-        _dai_token_address, _amount, _interest, {"from": _account}
+        dai_address, _amount, _interest, _account.address, {"from": _account}
     )
     repay_tx.wait(1)
-    print("Repayed!")
+    print("Repaid!")
 
 
 def get_lending_pool():
